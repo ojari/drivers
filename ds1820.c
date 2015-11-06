@@ -6,8 +6,7 @@
 
 #define USE_DS1820B
 
-extern void ds1820_reset(uint8_t pin);
-extern void usart_str(const char*);
+extern uint8_t ds1820_reset(uint8_t pin);
 
 void ds1820_init(uint8_t pin)
 {
@@ -15,9 +14,10 @@ void ds1820_init(uint8_t pin)
 	config_port_set(pin);
 }
 
-void ds1820_reset(uint8_t pin)
+uint8_t ds1820_reset(uint8_t pin)
 {
 	uint8_t presence;
+    uint8_t stat = ERR_NONE;
 
 	// do reset
 	config_port_clear(pin);
@@ -30,10 +30,11 @@ void ds1820_reset(uint8_t pin)
 	presence = config_port_read(pin);
 	delay_us(410);
 	if (presence)
-		usart_str("E DS1 0\r\n");
-	//else
-	//	usart_str("DS1 found\r\n");
-	config_port_mode(pin, MODE_OUTPUT);
+		stat = ERR_NOT_FOUND;
+
+    config_port_mode(pin, MODE_OUTPUT);
+    
+    return stat;
 }
 
 void ds1820_write(uint8_t pin, uint8_t data)
@@ -82,9 +83,16 @@ uint8_t ds1820_read(uint8_t pin)
 
 uint8_t ds1820_measure(uint8_t pin)
 {
-	ds1820_reset(pin);
+    uint8_t stat = ERR_NONE;
+    
+	stat = ds1820_reset(pin);
+    if (stat)
+        return stat;
+        
 	ds1820_write(pin, DS1820_CMD_SKIP_ROM);
 	ds1820_write(pin, DS1820_CMD_CONVERT);
+    
+    return stat;
 }
 
 // based on DS18S20 OPERATION EXAMPLE 3

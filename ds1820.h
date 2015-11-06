@@ -1,6 +1,11 @@
 #ifndef __DS18B20_H
 #define __DS18B20_H
 
+#include <stdint.h>
+    
+#define ERR_NONE      0
+#define ERR_NOT_FOUND 1
+
 //
 // http://datasheets.maximintegrated.com/en/ds/DS18S20.pdf
 // http://datasheets.maximintegrated.com/en/ds/DS18B20.pdf
