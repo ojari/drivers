@@ -8,12 +8,14 @@
 
 extern uint8_t ds1820_reset(uint8_t pin);
 
+//------------------------------------------------------------------------------
 void ds1820_init(uint8_t pin)
 {
 	port_mode(pin, MODE_OUTPUT);
 	port_set(pin);
 }
 
+//------------------------------------------------------------------------------
 uint8_t ds1820_reset(uint8_t pin)
 {
 	uint8_t presence;
@@ -37,6 +39,7 @@ uint8_t ds1820_reset(uint8_t pin)
     return stat;
 }
 
+//------------------------------------------------------------------------------
 void ds1820_write(uint8_t pin, uint8_t data)
 {
 	uint8_t i;
@@ -56,6 +59,7 @@ void ds1820_write(uint8_t pin, uint8_t data)
 	}
 }
 
+//------------------------------------------------------------------------------
 uint8_t ds1820_read(uint8_t pin)
 {
 	uint8_t i;
@@ -81,6 +85,7 @@ uint8_t ds1820_read(uint8_t pin)
 	return ret;
 }
 
+//------------------------------------------------------------------------------
 uint8_t ds1820_measure(uint8_t pin)
 {
     uint8_t stat = ERR_NONE;
@@ -95,6 +100,7 @@ uint8_t ds1820_measure(uint8_t pin)
     return stat;
 }
 
+//------------------------------------------------------------------------------
 // based on DS18S20 OPERATION EXAMPLE 3
 //
 uint8_t ds1820_read_temp(uint8_t pin)
