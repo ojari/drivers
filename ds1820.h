@@ -14,6 +14,7 @@
 #define DS1820_CMD_WRITE_SCRATCHPAD  0x4E
 #define DS1820_CMD_READ_SCRATCHPAD   0xBE
 #define DS1820_CMD_SKIP_ROM          0xCC
+#define DS1820_CMD_SEARCH            0xF0
 
 extern void ds1820_init(uint8_t pin);
 extern void ds1820_write(uint8_t pin, uint8_t data);
