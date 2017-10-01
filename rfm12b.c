@@ -39,8 +39,23 @@ void rfm12b_init(uint8_t group, uint8_t node)
 }
 
 //------------------------------------------------------------------------------
-void rfm12b_send(void* data, uint8_t size)
+void rfm12b_send(uint8_t* buffer, uint8_t size)
 {
+    uint8_t i;
+    
+    rfm12b_cmd( RFM12B_CMD_SEND | 0xAA); // preamble
+    rfm12b_cmd( RFM12B_CMD_SEND | 0xAA);
+    rfm12b_cmd( RFM12B_CMD_SEND | 0xAA);
+    rfm12b_cmd( RFM12B_CMD_SEND | 0x2D); // sync
+    rfm12b_cmd( RFM12B_CMD_SEND | 0xD4);
+
+    for(i=0; i<size; i++) {
+	rfm12b_cmd( RFM12B_CMD_SEND | buffer[i]);
+    }
+    
+    rfm12b_cmd( RFM12B_CMD_SEND | 0xAA); // dummy bytes
+    rfm12b_cmd( RFM12B_CMD_SEND | 0xAA);
+    rfm12b_cmd( RFM12B_CMD_SEND | 0xAA);
 }
 
 //------------------------------------------------------------------------------

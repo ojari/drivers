@@ -46,7 +46,9 @@ char *mysensor_present(uint8_t nodeId,
     add_int(type);
     add_ch(';');
     add_int(0);    
+    add_ch('\r');
     add_ch('\n');
+    add_ch(0); // string end mark
 
     return gBuffer;
 }
@@ -70,7 +72,9 @@ char *mysensor_set(uint8_t nodeId,
     add_int(type);
     add_ch(';');
     add_int(value);    
+    add_ch('\r');
     add_ch('\n');
+    add_ch(0);  // string end mark
 
     return gBuffer;
 }
