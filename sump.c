@@ -73,13 +73,13 @@ void sump_undef(uint8_t cmd)
 	clr_LED2;
     }
     if (cmd & 0x04) {
-	clr_LED3;
+	//clr_LED3;
     }
     LL_mDelay(2000);
 
     set_LED1;
     set_LED2;
-    set_LED3;
+    set_LED1;
     
     LL_mDelay(1000);
 }

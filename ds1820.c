@@ -1,9 +1,6 @@
 #include "hw.h"
 #include "ds1820.h"
 
-#define MODE_INPUT  0
-#define MODE_OUTPUT 1
-
 #define USE_DS1820B
 
 extern uint8_t ds1820_reset(uint8_t pin);
@@ -11,7 +8,7 @@ extern uint8_t ds1820_reset(uint8_t pin);
 //------------------------------------------------------------------------------
 void ds1820_init(uint8_t pin)
 {
-	io_mode(pin, MODE_OUTPUT);
+	io_mode(pin, IO_MODE_OUTPUT);
 	io_set(pin);
 }
 
@@ -25,7 +22,7 @@ uint8_t ds1820_reset(uint8_t pin)
 	io_clear(pin);
 	delay_us(500);   // min 480us
 	io_set(pin);
-	io_mode(pin, MODE_INPUT);
+	io_mode(pin, IO_MODE_INPUT);
 
 	// do presense
 	delay_us(90);   // wait for DS1820 to send presence
@@ -34,7 +31,7 @@ uint8_t ds1820_reset(uint8_t pin)
 	if (presence)
 		stat = ERR_NOT_FOUND;
 
-    io_mode(pin, MODE_OUTPUT);
+    io_mode(pin, IO_MODE_OUTPUT);
     
     return stat;
 }
@@ -70,7 +67,7 @@ uint8_t ds1820_read(uint8_t pin)
     for (i=1; i; i<<=1) {
 	io_clear(pin);
 	delay_us(4);
-	io_mode(pin, MODE_INPUT);
+	io_mode(pin, IO_MODE_INPUT);
 	delay_us(9);
 	if (io_read(pin)) {
 	    //if (GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_13)) {
@@ -78,7 +75,7 @@ uint8_t ds1820_read(uint8_t pin)
 	}
 	delay_us(60);
 	io_set(pin);
-	io_mode(pin, MODE_OUTPUT);
+	io_mode(pin, IO_MODE_OUTPUT);
 	delay_us(4);
     }
 	
