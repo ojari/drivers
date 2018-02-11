@@ -11,35 +11,36 @@
 #define SUMP_META_PROTOCOL_VER 0x41
 
 #define BUFFER_SIZE 1024
+#define UART 2
 
 uint8_t buffer[BUFFER_SIZE];
 
 void sump_meta_int32(uint8_t key, uint32_t value)
 {
-    uart_send(key);
-    uart_send( (value >> 24) & 0xFF);
-    uart_send( (value >> 16) & 0xFF);
-    uart_send( (value >>  8) & 0xFF);
-    uart_send( value & 0xFF);
+    uart_send(UART, key);
+    uart_send(UART, (value >> 24) & 0xFF);
+    uart_send(UART, (value >> 16) & 0xFF);
+    uart_send(UART, (value >>  8) & 0xFF);
+    uart_send(UART, value & 0xFF);
 }
 
 void sump_meta()
 {
-    uart_send(SUMP_META_NAME);
-    uart_sends("StmSump");
-    uart_send(0x00);
+    uart_send(UART, SUMP_META_NAME);
+    uart_sends(UART, "StmSump");
+    uart_send(UART, 0x00);
 
     sump_meta_int32(SUMP_META_SAMPLE_MEM, BUFFER_SIZE);
     sump_meta_int32(SUMP_META_DYN_MEM,    0);
     sump_meta_int32(SUMP_META_SAMPLE_RATE,1000000);
 
-    uart_send(SUMP_META_NO_PROPES);
-    uart_send(8);
+    uart_send(UART, SUMP_META_NO_PROPES);
+    uart_send(UART, 8);
 
-    uart_send(SUMP_META_PROTOCOL_VER);
-    uart_send(2);
+    uart_send(UART, SUMP_META_PROTOCOL_VER);
+    uart_send(UART, 2);
 
-    uart_send(0x00); // end mark
+    uart_send(UART, 0x00); // end mark
 }
 
 void sump_run()
@@ -50,7 +51,7 @@ void sump_run()
 
     val = 1;
     for (i=0; i<BUFFER_SIZE; i++) {
-	uart_send(val);
+	uart_send(UART, val);
 
 	val++;
 	if (val > 20)
@@ -60,7 +61,7 @@ void sump_run()
 
 void sump_read()
 {
-    //uart_sends("READ\n");
+    //uart_sends(UART, "READ\n");
 }
 
 
@@ -91,7 +92,7 @@ void sump_handle(uint8_t cmd)
 	// do nothing
 	break;
     case SUMP_ID:
-	uart_sends("1ALS");
+	uart_sends(UART, "1ALS");
 	break;
     case SUMP_METADATA:
 	sump_meta();

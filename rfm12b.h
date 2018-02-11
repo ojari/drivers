@@ -37,8 +37,14 @@
 #define RFM12B_CMD_TXCFG 0x9800
 #define RFM12B_TXCFG_MP BIT_8
 
-extern void rfm12b_init(uint8_t group, uint8_t node);
-extern void rfm12b_send(uint8_t* buffer, uint8_t size);
-extern uint8_t rfm12b_receive();
+
+typedef struct {
+    uint8_t spi_port;
+    uint8_t pin_select;
+} rfm12b;
+
+extern void rfm12b_init(rfm12b *self, int spi, int select);
+extern void rfm12b_send(rfm12b *self, uint8_t* buffer, uint8_t size);
+extern uint8_t rfm12b_receive(rfm12b *self);
 
 #endif
