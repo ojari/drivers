@@ -49,12 +49,15 @@ uint16_t rfm12b_cmd(rfm12b *self, uint16_t code)
 }
 
 //------------------------------------------------------------------------------
-void rfm12b_init(rfm12b *self, int spi, int select)
+void rfm12b_init(rfm12b *self, int spi, int select, int irq)
 {
     uint8_t i;
 
+    spi_init(spi);
+    
     self->spi_port = spi;
     self->pin_select = select;
+    self->pin_irq = irq;
     
     rfm12b_cmd(self, 0x0000);
 
@@ -64,9 +67,22 @@ void rfm12b_init(rfm12b *self, int spi, int select)
 }
 
 //------------------------------------------------------------------------------
+void rfm12b_tx(rfm12b *self, uint8_t on)
+{
+    if (on) {
+	rfm12b_cmd(self, 0x8239);
+    }
+    else {
+	rfm12b_cmd(self, 0x8201);
+    }
+}
+
+//------------------------------------------------------------------------------
 void rfm12b_send(rfm12b *self, uint8_t* buffer, uint8_t size)
 {
     uint8_t i;
+
+    rfm12b_tx(self, 1);
     
     rfm12b_cmd(self, RFM12B_CMD_SEND | 0xAA); // preamble
     rfm12b_cmd(self, RFM12B_CMD_SEND | 0xAA);
@@ -81,10 +97,18 @@ void rfm12b_send(rfm12b *self, uint8_t* buffer, uint8_t size)
     rfm12b_cmd(self, RFM12B_CMD_SEND | 0xAA); // dummy bytes
     rfm12b_cmd(self, RFM12B_CMD_SEND | 0xAA);
     rfm12b_cmd(self, RFM12B_CMD_SEND | 0xAA);
+
+    rfm12b_tx(self, 0);
 }
 
 //------------------------------------------------------------------------------
 uint8_t rfm12b_receive(rfm12b *self)
 {
-	return 0;
+    return 0;
+}
+
+//------------------------------------------------------------------------------
+void rfm12b_test(rfm12b *self)
+{
+    rfm12b_cmd(self, 0x5555);
 }

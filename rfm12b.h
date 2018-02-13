@@ -41,10 +41,13 @@
 typedef struct {
     uint8_t spi_port;
     uint8_t pin_select;
+    uint8_t pin_irq;
 } rfm12b;
 
-extern void rfm12b_init(rfm12b *self, int spi, int select);
+extern void rfm12b_init(rfm12b *self, int spi, int select, int irq);
+extern void rfm12b_tx(rfm12b *self, uint8_t on);
 extern void rfm12b_send(rfm12b *self, uint8_t* buffer, uint8_t size);
 extern uint8_t rfm12b_receive(rfm12b *self);
+extern void rfm12b_test(rfm12b *self);
 
 #endif
