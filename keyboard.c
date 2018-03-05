@@ -1,0 +1,47 @@
+#include "keyboard.h"
+
+uint8_t layouts[KEYBOARD_LAYOUTS][KEYBOARD_ROWS][KEYBOARD_COLS] = {
+    {
+	{ K_ESC,    K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9, K_0  },
+	{ K_TAB,    K_Q, K_W, K_E, K_R, K_T, K_Y, K_U, K_I, K_O, K_P  },
+	{ K_LCTRL,  K_A, K_S, K_D, K_F, K_G, K_H, K_J, K_K, K_L, K_O  },
+	{ K_LSHIFT, K_?, K_Z, K_X, K_C, K_V, K_B, K_N, K_M, K_?, K_?  },
+	{ 2, 3, 4 },
+    },
+    {
+	{ K_ESC,    K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9, K_0  },
+	{ K_TAB,    K_Q, K_W, K_E, K_R, K_T, K_Y, K_U, K_I, K_O, K_P  },
+	{ K_LCTRL,  K_A, K_S, K_D, K_F, K_G, K_H, K_J, K_K, K_L, K_O  },
+	{ K_LSHIFT, K_?, K_Z, K_X, K_C, K_V, K_B, K_N, K_M, K_?, K_?  },
+	{ 2, 3, 4 },
+    }
+};
+	
+
+void keyboard_init(keyboard *self)
+{
+}
+
+uint8_t keyboard_map(keyboard *self, uint8_t row, uint8_t col)
+{
+    //@todo select correct layer
+    //
+    return layouts[0][row][col];
+}
+
+void keyboard_scan(keyboard *self)
+{
+    uint8_t x, y;
+
+    for (row=0; row<KEYBOARD_ROWS; row++) {
+	io_set(self->rows[row]);
+
+	for (col=0; col<KEYBOARD_COLS; col++) {
+	    uint8_t state = io_read(self->cols[col]);
+	    if (state) {
+		uint8_t keyId = keyboard_map(self, row, col);
+	    }
+	}
+	io_clear(self->rows[row]);
+    }
+}
