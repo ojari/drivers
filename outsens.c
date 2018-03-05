@@ -24,7 +24,7 @@ char *outsens_set(uint8_t  index,
 	buffer_add_ch( &outsens_buffer, ';');
 	buffer_add_int(&outsens_buffer, values[i]);
     }
-    //buffer_add_ch( &outsens_buffer, '\r');
+    buffer_add_ch( &outsens_buffer, '\r');
     buffer_add_ch( &outsens_buffer, '\n');
     buffer_add_ch( &outsens_buffer, 0);  // string end mark
 

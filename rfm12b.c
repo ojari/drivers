@@ -43,6 +43,7 @@ uint16_t rfm12b_cmd(rfm12b *self, uint16_t code)
 {
     io_clear(self->pin_select);
     spi_write(self->spi_port, code);
+    delay_us(1);
     io_set(self->pin_select);
 
     return 0;
@@ -63,6 +64,7 @@ void rfm12b_init(rfm12b *self, int spi, int select, int irq)
 
     for (i=0; rfm12b_config[i] != 0; i++) {
         rfm12b_cmd(self, rfm12b_config[i]);
+	delay_us(2);
     }
 }
 
@@ -104,11 +106,14 @@ void rfm12b_send(rfm12b *self, uint8_t* buffer, uint8_t size)
 //------------------------------------------------------------------------------
 uint8_t rfm12b_receive(rfm12b *self)
 {
+    rfm12b_cmd(self, 0x0000);
+    rfm12b_cmd(self, RFM12B_CMD_RECEIVE);
+    
     return 0;
 }
 
 //------------------------------------------------------------------------------
 void rfm12b_test(rfm12b *self)
 {
-    rfm12b_cmd(self, 0x5555);
+    rfm12b_cmd(self, 0x0551);
 }
