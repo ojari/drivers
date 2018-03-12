@@ -2,6 +2,9 @@
 #include <stdio.h> 
 #include "rfm12b.h"
 
+#define MODE_SLEEP   RFM12B_CMD_PWR | 0x05
+#define MODE_IDLE    RFM12B_CMD_PWR | 0x0D
+
 const uint16_t rfm12b_config[] = {
     0x80ED, // 868MHz
     0x8209, // ex+dc
@@ -15,8 +18,8 @@ const uint16_t rfm12b_config[] = {
     0xC49B, //enable AFC
     0x9810, //434M,Max=8dbm ; 868M/915M,Max=6dbm
     0xCC77, //
-    0xE69C, //waker up timer 10000ms
-    0xC80e, //NOT USE
+    0xE000, //waker up not used
+    0xC800, //NOT USE
     0xC060, //CLK 2.0MHz,LBD 2.2V
     0
 
@@ -61,10 +64,16 @@ void rfm12b_init(rfm12b *self, int spi, int select, int irq)
     self->pin_irq = irq;
     
     rfm12b_cmd(self, 0x0000);
+    rfm12b_cmd(self, MODE_SLEEP);
 
+    rfm12b_cmd(self, RFM12B_CMD_SEND);
+    while (io_read(self->pin_irq) == 0)
+	rfm12b_cmd(self, 0x0000);
+
+    
     for (i=0; rfm12b_config[i] != 0; i++) {
         rfm12b_cmd(self, rfm12b_config[i]);
-	delay_us(2);
+	delay_us(1);
     }
 }
 
@@ -75,7 +84,7 @@ void rfm12b_tx(rfm12b *self, uint8_t on)
 	rfm12b_cmd(self, 0x8239);
     }
     else {
-	rfm12b_cmd(self, 0x8201);
+	rfm12b_cmd(self, 0x82D9);
     }
 }
 
