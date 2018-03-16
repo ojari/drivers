@@ -1,9 +1,25 @@
 #include "hw.h"
 #include <stdio.h> 
 #include "rfm12b.h"
+#include "logging.h"
+
+#define LMSG_TX_ON   't'
+#define LMSG_RX_ON   'r'
+#define LMSG_PHASE_1 '1'
+#define LMSG_PHASE_2 '2'
+#define LMSG_PHASE_3 '3'
+#define LMSG_PHASE_4 '4'
+#define LMSG_PHASE_5 '5'
+#define LMSG_PHASE_6 '6'
+#define LMSG_PHASE_7 '7'
+#define LMSG_PHASE_8 '8'
+#define LMSG_PHASE_9 '9'
 
 #define MODE_SLEEP   RFM12B_CMD_PWR | 0x05
 #define MODE_IDLE    RFM12B_CMD_PWR | 0x0D
+
+#define LOG(X) log_msg(LGRP_RFM12, X)
+
 
 const uint16_t rfm12b_config[] = {
     0x80ED, // 868MHz
@@ -53,6 +69,21 @@ uint16_t rfm12b_cmd(rfm12b *self, uint16_t code)
 }
 
 //------------------------------------------------------------------------------
+uint16_t rfm12b_cmd_wait(rfm12b *self, uint16_t code)
+{
+    while (io_read(self->pin_irq) == 0)
+	;
+
+    io_clear(self->pin_select);
+    spi_write(self->spi_port, code);
+    delay_us(1);
+    io_set(self->pin_select);
+
+    return 0;
+}
+
+
+//------------------------------------------------------------------------------
 void rfm12b_init(rfm12b *self, int spi, int select, int irq)
 {
     uint8_t i;
@@ -81,9 +112,11 @@ void rfm12b_init(rfm12b *self, int spi, int select, int irq)
 void rfm12b_tx(rfm12b *self, uint8_t on)
 {
     if (on) {
+	LOG(LMSG_TX_ON);
 	rfm12b_cmd(self, 0x8239);
     }
     else {
+	LOG(LMSG_RX_ON);
 	rfm12b_cmd(self, 0x82D9);
     }
 }
@@ -94,20 +127,26 @@ void rfm12b_send(rfm12b *self, uint8_t* buffer, uint8_t size)
     uint8_t i;
 
     rfm12b_tx(self, 1);
-    
-    rfm12b_cmd(self, RFM12B_CMD_SEND | 0xAA); // preamble
-    rfm12b_cmd(self, RFM12B_CMD_SEND | 0xAA);
-    rfm12b_cmd(self, RFM12B_CMD_SEND | 0xAA);
-    rfm12b_cmd(self, RFM12B_CMD_SEND | 0x2D); // sync
-    rfm12b_cmd(self, RFM12B_CMD_SEND | 0xD4);
+
+    LOG(LMSG_PHASE_1);
+    rfm12b_cmd_wait(self, RFM12B_CMD_SEND | 0xAA); // preamble
+    LOG(LMSG_PHASE_2);
+    rfm12b_cmd_wait(self, RFM12B_CMD_SEND | 0xAA);
+    LOG(LMSG_PHASE_3);
+    rfm12b_cmd_wait(self, RFM12B_CMD_SEND | 0xAA);
+    LOG(LMSG_PHASE_4);
+    rfm12b_cmd_wait(self, RFM12B_CMD_SEND | 0x2D); // sync
+    LOG(LMSG_PHASE_5);
+    rfm12b_cmd_wait(self, RFM12B_CMD_SEND | 0xD4);
 
     for(i=0; i<size; i++) {
-	rfm12b_cmd(self, RFM12B_CMD_SEND | buffer[i]);
+	rfm12b_cmd_wait(self, RFM12B_CMD_SEND | buffer[i]);
     }
     
-    rfm12b_cmd(self, RFM12B_CMD_SEND | 0xAA); // dummy bytes
-    rfm12b_cmd(self, RFM12B_CMD_SEND | 0xAA);
-    rfm12b_cmd(self, RFM12B_CMD_SEND | 0xAA);
+    LOG(LMSG_PHASE_5);
+    rfm12b_cmd_wait(self, RFM12B_CMD_SEND | 0xAA); // dummy bytes
+    rfm12b_cmd_wait(self, RFM12B_CMD_SEND | 0xAA);
+    rfm12b_cmd_wait(self, RFM12B_CMD_SEND | 0xAA);
 
     rfm12b_tx(self, 0);
 }
