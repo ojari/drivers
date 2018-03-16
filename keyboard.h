@@ -93,7 +93,19 @@
 #define K_RALT   0xE6
 #define K_RGUI   0xE7
 
+// Keyboard modifiers
+//
+#define KEY_MOD_LCTRL  0x01
+#define KEY_MOD_LSHIFT 0x02
+#define KEY_MOD_LALT   0x04
+#define KEY_MOD_LGUI   0x08
+#define KEY_MOD_RCTRL  0x10
+#define KEY_MOD_RSHIFT 0x20
+#define KEY_MOD_RALT   0x40
+#define KEY_MOD_RGUI   0x80
 
+// Keyboard module
+//
 typedef struct {
     uint8_t pin_rows[KEYBOARD_ROWS];
     uint8_t pin_cols[KEYBOARD_COLS];
