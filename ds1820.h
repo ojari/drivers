@@ -16,9 +16,19 @@
 #define DS1820_CMD_SKIP_ROM          0xCC
 #define DS1820_CMD_SEARCH            0xF0
 
+
+typedef struct {
+    uint8_t romNo[8];
+    int8_t  lastDiscrepancy;
+    int8_t  lastFamilyDiscrepancy;
+    int8_t  lastDeviceFlag;
+    uint8_t crc8;
+} ds1820_search_t;
+
 extern void ds1820_init(uint8_t pin);
 extern void ds1820_write(uint8_t pin, uint8_t data);
 extern uint8_t ds1820_measure(uint8_t pin);
 extern uint8_t ds1820_read_temp(uint8_t pin);
+extern uint8_t ds1820_search(uint8_t pin, ds1820_search_t *data);
 
 #endif
