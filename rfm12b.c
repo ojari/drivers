@@ -60,26 +60,32 @@ const uint16_t rfm12b_config[] = {
 //------------------------------------------------------------------------------
 uint16_t rfm12b_cmd(rfm12b *self, uint16_t code)
 {
+    uint16_t retval = 0;
+    
     io_clear(self->pin_select);
-    spi_write(self->spi_port, code);
+    retval = spi_write(self->spi_port, code);
     delay_us(1);
     io_set(self->pin_select);
 
-    return 0;
+    return retval;
 }
 
 //------------------------------------------------------------------------------
 uint16_t rfm12b_cmd_wait(rfm12b *self, uint16_t code)
 {
+    uint16_t retval = 0;
+
+    //io_set(PIN_LED2);
     while (io_read(self->pin_irq) == 0)
 	;
-
+    //io_clear(PIN_LED2);
+    
     io_clear(self->pin_select);
-    spi_write(self->spi_port, code);
+    retval = spi_write(self->spi_port, code);
     delay_us(1);
     io_set(self->pin_select);
 
-    return 0;
+    return retval;
 }
 
 
@@ -104,7 +110,7 @@ void rfm12b_init(rfm12b *self, int spi, int select, int irq)
     
     for (i=0; rfm12b_config[i] != 0; i++) {
         rfm12b_cmd(self, rfm12b_config[i]);
-	delay_us(1);
+	//delay_us(1);
     }
 }
 
@@ -128,22 +134,16 @@ void rfm12b_send(rfm12b *self, uint8_t* buffer, uint8_t size)
 
     rfm12b_tx(self, 1);
 
-    LOG(LMSG_PHASE_1);
     rfm12b_cmd_wait(self, RFM12B_CMD_SEND | 0xAA); // preamble
-    LOG(LMSG_PHASE_2);
     rfm12b_cmd_wait(self, RFM12B_CMD_SEND | 0xAA);
-    LOG(LMSG_PHASE_3);
     rfm12b_cmd_wait(self, RFM12B_CMD_SEND | 0xAA);
-    LOG(LMSG_PHASE_4);
     rfm12b_cmd_wait(self, RFM12B_CMD_SEND | 0x2D); // sync
-    LOG(LMSG_PHASE_5);
     rfm12b_cmd_wait(self, RFM12B_CMD_SEND | 0xD4);
 
     for(i=0; i<size; i++) {
 	rfm12b_cmd_wait(self, RFM12B_CMD_SEND | buffer[i]);
     }
-    
-    LOG(LMSG_PHASE_5);
+ 
     rfm12b_cmd_wait(self, RFM12B_CMD_SEND | 0xAA); // dummy bytes
     rfm12b_cmd_wait(self, RFM12B_CMD_SEND | 0xAA);
     rfm12b_cmd_wait(self, RFM12B_CMD_SEND | 0xAA);
