@@ -25,5 +25,4 @@ extern void uart_send_nl(uint8_t port);
 extern void timer2_init();
 
 extern void spi_init(uint8_t port);
-extern void spi_write(uint8_t port, uint16_t data);
-extern uint16_t spi_read(uint8_t port);
+extern uint16_t spi_write(uint8_t port, uint16_t data);
