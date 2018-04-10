@@ -174,10 +174,10 @@ void write_bit(uint8_t pin, uint8_t bit)
 // NOTE: Based on
 //       http://www.sal.wisc.edu/PFIS/docs/rss-nir/archive/public/Product%20Manuals/maxim-ic/AN187.pdf
 //
-uint8_t ds1820_search(uint8_t pin, ds1820_search_t *data)
+uint8_t ds1820_search(uint8_t pin, ds1820_search_t *data, uint8_t *romNo)
 {
     uint8_t id_bit_number;
-    uint8_t last_zero, rom_byte_number, search_result;
+    uint8_t last_zero, rom_byte_number, result;
     uint8_t id_bit, cmp_id_bit;
     uint8_t rom_byte_mask, search_direction;
 
@@ -186,8 +186,7 @@ uint8_t ds1820_search(uint8_t pin, ds1820_search_t *data)
     last_zero = 0;
     rom_byte_number = 0;
     rom_byte_mask = 1;
-    search_result = 0;
-    data->crc8 = 0;
+    result = 0;
     
     // if the last call was not the last one
     if (!data->lastDeviceFlag) { 
@@ -219,7 +218,7 @@ uint8_t ds1820_search(uint8_t pin, ds1820_search_t *data)
 		    // if this discrepancy if before the Last Discrepancy
 		    // on a previous next then pick the same as last time
 		    if (id_bit_number < data->lastDiscrepancy)
-			search_direction = ((data->romNo[rom_byte_number] & rom_byte_mask) > 0);
+			search_direction = ((romNo[rom_byte_number] & rom_byte_mask) > 0);
 		    else
 			// if equal to last pick 1, if not then pick 0
 			search_direction = (id_bit_number == data->lastDiscrepancy);
@@ -237,9 +236,9 @@ uint8_t ds1820_search(uint8_t pin, ds1820_search_t *data)
 		// set or clear the bit in the ROM byte rom_byte_number
 		// with mask rom_byte_mask
 		if (search_direction == 1)
-		    data->romNo[rom_byte_number] |= rom_byte_mask;
+		    romNo[rom_byte_number] |= rom_byte_mask;
 		else
-		    data->romNo[rom_byte_number] &= ~rom_byte_mask;
+		    romNo[rom_byte_number] &= ~rom_byte_mask;
 
 		// serial number search direction write bit
 		write_bit(pin, search_direction);
@@ -256,27 +255,27 @@ uint8_t ds1820_search(uint8_t pin, ds1820_search_t *data)
 		}
 	    }
 	}
-	while(rom_byte_number < 8);  // loop until through all ROM bytes 0-7
+	while(rom_byte_number < DS1820_ROM_SIZE);  // loop until through all ROM bytes 0-7
 
 	// if the search was successful then
-	if (!(id_bit_number < 65)) {
-	    // search successful so set LastDiscrepancy,LastDeviceFlag,search_result
+	if (!(id_bit_number < (8 * DS1820_ROM_SIZE + 1))) {
+	    // search successful so set LastDiscrepancy,LastDeviceFlag,result
 	    data->lastDiscrepancy = last_zero;
 
 	    // check for last device
 	    if (data->lastDiscrepancy == 0)
 		data->lastDeviceFlag = TRUE;
 
-	    search_result = TRUE;
+	    result = TRUE;
 	}
     }
 
     // if no device found then reset counters so next 'search' will be like a first
-    if (!search_result || !data->romNo[0]) {
+    if (!result || !romNo[0]) {
 	data->lastDiscrepancy = 0;
 	data->lastDeviceFlag = FALSE;
 	data->lastFamilyDiscrepancy = 0;
-	search_result = FALSE;
+	result = FALSE;
     }
-    return search_result;
+    return result;
 }
