@@ -1,7 +1,7 @@
 #include "hw.h"
 #include "hal.h"
 
-const char *HEX_DIGIT = "0123456789ABCDEF";
+static const char *HEX_DIGIT = "0123456789ABCDEF";
 
 //------------------------------------------------------------------------------
 void uart_nl(uint8_t port)

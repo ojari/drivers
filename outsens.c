@@ -7,7 +7,7 @@ buffer_t outsens_buffer;
 //------------------------------------------------------------------------------
 void outsens_init()
 {
-    buffer_create(&outsens_buffer, 50);
+    buffer_clear(&outsens_buffer);
 }
 
 //------------------------------------------------------------------------------
@@ -17,7 +17,7 @@ char *outsens_set(uint8_t  index,
 {
     uint8_t i;
 
-    buffer_reset(&outsens_buffer);
+    buffer_clear(&outsens_buffer);
     
     buffer_add_int(&outsens_buffer, index);
     for (i=0; i<count; i++) {
