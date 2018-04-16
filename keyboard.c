@@ -27,6 +27,11 @@ uint8_t layouts[KEYBOARD_LAYOUTS][KEYBOARD_ROWS][KEYBOARD_COLS] = {
 
 void keyboard_init(keyboard *self)
 {
+    for (uint8_t r=0; r<KEYBOARD_ROWS; r++) {
+	self->matrix[r] = 0;
+	self->matrix_debounce[r] = 0;
+    }
+    self->modifiers = 0;
 }
 
 uint8_t keyboard_map(keyboard *self, uint8_t row, uint8_t col)
@@ -36,19 +41,44 @@ uint8_t keyboard_map(keyboard *self, uint8_t row, uint8_t col)
     return layouts[0][row][col];
 }
 
-void keyboard_scan(keyboard *self)
+void keyboard_scan(keyboard *self, func_keychange evKeyChange)
 {
-    uint8_t row, col;
+    uint8_t colval;
 
-    for (row=0; row<KEYBOARD_ROWS; row++) {
+    for (uint8_t row=0; row<KEYBOARD_ROWS; row++) {
 	io_set(self->pin_rows[row]);
+	// delay_us(10);
+	
+	colval = 0;
+	for (uint8_t col=0; col<KEYBOARD_COLS; col++) {
+	    if (io_read(self->pin_cols[col])) {
+		colval |= 1 << col;
+	    }
+	}
 
-	for (col=0; col<KEYBOARD_COLS; col++) {
-	    uint8_t state = io_read(self->pin_cols[col]);
-	    if (state) {
-		uint8_t keyId = keyboard_map(self, row, col);
+	if (colval != self->matrix_debounce[row]) {
+	    self->matrix_debounce[row] = colval;
+	}
+	else {
+	    if (colval != self->matrix[row]) {
+
+		// check which bit is changed
+		//
+		for (uint8_t col=0; col<KEYBOARD_COLS; col++) {
+		    uint8_t bit = 1 << col;
+		    if ((colval & bit) != (self->matrix[row] & bit)) {
+			(*evKeyChange)(col, row, colval & bit);
+		    }
+		}
+
+		self->matrix[row] = colval;
 	    }
 	}
 	io_clear(self->pin_rows[row]);
     }
+}
+
+void keyboard_dump(keyboard *self, buffer_t *buf)
+{
+    
 }

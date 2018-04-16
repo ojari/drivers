@@ -2,6 +2,8 @@
 #define __KEYBOARD_H
 
 #include <stdint.h>
+#include "hal.h"
+#include "buffer.h"
 
 #define KEYBOARD_ROWS 2
 #define KEYBOARD_COLS 2
@@ -104,15 +106,23 @@
 #define KEY_MOD_RALT   0x40
 #define KEY_MOD_RGUI   0x80
 
+typedef uint8_t matrix_row_t;
+
 // Keyboard module
 //
 typedef struct {
-    uint8_t pin_rows[KEYBOARD_ROWS];
-    uint8_t pin_cols[KEYBOARD_COLS];
+    pin_t pin_rows[KEYBOARD_ROWS];
+    pin_t pin_cols[KEYBOARD_COLS];
     uint8_t modifiers;
+
+    matrix_row_t matrix[KEYBOARD_ROWS];
+    matrix_row_t matrix_debounce[KEYBOARD_ROWS];
 } keyboard; 
 
+typedef void (*func_keychange)(uint8_t row, uint8_t col, uint8_t status);
+
 extern void keyboard_init(keyboard *self);
-extern void keyboard_scan(keyboard *self);
+extern void keyboard_scan(keyboard *self, func_keychange evKeyChange);
+extern void keyboard_dump(keyboard *self, buffer_t *buf);
 
 #endif // __KEYBOARD_H
