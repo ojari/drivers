@@ -19,14 +19,14 @@ char *outsens_set(uint8_t  index,
 
     buffer_clear(&outsens_buffer);
     
-    buffer_add_int(&outsens_buffer, index);
+    buffer_dec(&outsens_buffer, index);
     for (i=0; i<count; i++) {
-	buffer_add_ch( &outsens_buffer, ';');
-	buffer_add_int(&outsens_buffer, values[i]);
+	buffer_ch( &outsens_buffer, ';');
+	buffer_dec(&outsens_buffer, values[i]);
     }
-    buffer_add_ch( &outsens_buffer, '\r');
-    buffer_add_ch( &outsens_buffer, '\n');
-    buffer_add_ch( &outsens_buffer, 0);  // string end mark
+    buffer_ch( &outsens_buffer, '\r');
+    buffer_ch( &outsens_buffer, '\n');
+    buffer_ch( &outsens_buffer, 0);  // string end mark
 
     return (char*)outsens_buffer.data;
 }

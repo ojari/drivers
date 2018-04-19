@@ -23,3 +23,5 @@ extern void buffer_remove(buffer_t *buf);
 extern uint8_t buffer_get(buffer_t *buf);
 extern uint8_t buffer_empty(buffer_t *buf);
 
+#define BUFFER_DATA(buf) (buf->data)
+#define BUFFER_SIZE(buf) (buf->size)
