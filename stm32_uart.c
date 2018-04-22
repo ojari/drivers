@@ -19,6 +19,10 @@
 
 uint8_t gUart1Rx;
 uint8_t gUart2Rx;
+static uint8_t *uart1_buffer;
+static uint8_t uart1_size;
+static uint8_t *uart2_buffer;
+static uint8_t uart2_size;
 
 
 #ifdef stm32f0
@@ -61,30 +65,52 @@ USART_TypeDef *uart_get(uint8_t port)
 //------------------------------------------------------------------------------
 void USART1_IRQHandler()
 {
-  if (LL_USART_IsActiveFlag_RXNE(USART1) && LL_USART_IsEnabledIT_RXNE(USART1)) {
-    /* RXNE flag will be cleared by reading of RDR register (done in call) */
-    /* Call function in charge of handling Character reception */
-    //USART_CharReception_Callback();
-      gUart1Rx = LL_USART_ReceiveData8(USART1);
-
-      //uart_send(ch);
-      
-      gEvents |= EV_UART1_RX;
-  }
+    if (LL_USART_IsActiveFlag_RXNE(USART1) &&
+	LL_USART_IsEnabledIT_RXNE(USART1))
+    {
+	/* RXNE flag will be cleared by reading of RDR register
+	 */
+	gUart1Rx = LL_USART_ReceiveData8(USART1);
+	
+	gEvents |= EV_UART1_RX;
+    }
+    if (LL_USART_IsActiveFlag_TXE(USART1) &&
+	LL_USART_IsEnabledIT_TXE(USART1))
+    {
+	if (uart1_size > 0) {
+	    LL_USART_TransmitData8(USART1, *uart1_buffer);	  
+	    uart1_buffer++;
+	    uart1_size--;
+	}
+	else {
+	    gEvents |= EV_UART1_TX;
+	}
+    }
 }
 
 void USART2_IRQHandler()
 {
-  if (LL_USART_IsActiveFlag_RXNE(USART2) && LL_USART_IsEnabledIT_RXNE(USART2)) {
-    /* RXNE flag will be cleared by reading of RDR register (done in call) */
-    /* Call function in charge of handling Character reception */
-    //USART_CharReception_Callback();
-      gUart2Rx = LL_USART_ReceiveData8(USART2);
-
-      //uart_send(ch);
-      
-      gEvents |= EV_UART2_RX;
-  }
+    if (LL_USART_IsActiveFlag_RXNE(USART2) &&
+	LL_USART_IsEnabledIT_RXNE(USART2))
+    {
+	/* RXNE flag will be cleared by reading of RDR register
+	 */
+	gUart2Rx = LL_USART_ReceiveData8(USART2);
+	
+	gEvents |= EV_UART2_RX;
+    }
+    if (LL_USART_IsActiveFlag_TXE(USART2) &&
+	LL_USART_IsEnabledIT_TXE(USART2))
+    {
+	if (uart2_size > 0) {
+	    LL_USART_TransmitData8(USART2, *uart2_buffer);	  
+	    uart2_buffer++;
+	    uart2_size--;
+	}
+	else {
+	    gEvents |= EV_UART2_TX;
+	}
+    }
 }
 
 
@@ -141,10 +167,35 @@ void uart_init(uint8_t port)
     LL_USART_ConfigAsyncMode(USART1); // for stm32f0
     
     LL_USART_EnableIT_RXNE(uart);
+    LL_USART_EnableIT_TXE(uart);
     LL_USART_EnableIT_ERROR(uart);
 }
 
 //------------------------------------------------------------------------------
+void uart_print(uint8_t port, buffer_t *buf)
+{
+    USART_TypeDef *uart = uart_get(port);
+
+    if (port == 1) {
+	uart1_buffer = BUFFER_DATA(buf);
+	uart1_size   = BUFFER_SIZE(buf);
+
+	LL_USART_TransmitData8(uart, *uart1_buffer);
+
+	uart1_buffer++;
+	uart1_size--;
+    }
+    else if (port == 2) {
+	uart2_buffer = BUFFER_DATA(buf);
+	uart2_size   = BUFFER_SIZE(buf);
+
+	LL_USART_TransmitData8(uart, *uart2_buffer);
+
+	uart2_buffer++;
+	uart2_size--;
+    }
+}
+
 void uart_send(uint8_t port, char ch)
 {
     USART_TypeDef *uart = uart_get(port);
@@ -154,7 +205,7 @@ void uart_send(uint8_t port, char ch)
     LL_USART_TransmitData8(uart, ch);
 }
 
-//------------------------------------------------------------------------------
+
 void uart_sends(uint8_t port, char *buf)
 {
     USART_TypeDef *uart = uart_get(port);

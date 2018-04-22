@@ -1,6 +1,7 @@
 #pragma once
 
 #include "hal_pins.h"
+#include "buffer.h"
 
 #define IO_MODE_INPUT  0
 #define IO_MODE_OUTPUT 1
@@ -18,12 +19,15 @@ extern void io_clear(pin_t pin);
 extern uint8_t io_read(pin_t pin);
 
 extern void uart_init(uint8_t port);
-extern void uart_send(uint8_t port, char ch);
-extern void uart_sends(uint8_t port, char *buf);
-extern void uart_nl(uint8_t port);                    // in hal_common
-extern void uart_hex8(uint8_t port, uint8_t value);   // in hal_common
-extern void uart_hex16(uint8_t port, uint16_t value); // in hal_common
-extern void uart_dec8(uint8_t port, uint8_t value);   // in hal_common
+extern void uart_print(uint8_t port, buffer_t *buf);
+
+extern void uart_send(uint8_t port, char ch);    // old version use uart_print
+extern void uart_sends(uint8_t port, char *buf); // 
+
+//extern void uart_nl(uint8_t port);                    // in hal_common
+//extern void uart_hex8(uint8_t port, uint8_t value);   // in hal_common
+//extern void uart_hex16(uint8_t port, uint16_t value); // in hal_common
+//extern void uart_dec8(uint8_t port, uint8_t value);   // in hal_common
 
 extern void timer2_init();
 

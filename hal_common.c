@@ -1,6 +1,7 @@
 #include "hw.h"
 #include "hal.h"
 
+/*
 static const char *HEX_DIGIT = "0123456789ABCDEF";
 
 //------------------------------------------------------------------------------
@@ -35,3 +36,4 @@ void uart_dec8(uint8_t port, uint8_t value)
     uart_send(UART, '0' + ((value/10) % 10));
     uart_send(UART, '0' + (value % 10));
 }
+*/
