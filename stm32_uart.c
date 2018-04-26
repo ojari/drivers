@@ -1,39 +1,29 @@
 #include "hw.h"
 #include "hal.h"
+#include "event.h"
 
 #ifdef stm32f4
 #include "stm32f4xx_ll_bus.h"
 #include "stm32f4xx_ll_usart.h"
+#define UART_PORT USART2
 #endif
 
 #ifdef stm32f7
 #include "stm32f7xx_ll_bus.h"
 #include "stm32f7xx_ll_usart.h"
+#define UART_PORT ((USART_TypeDef *) USART3_BASE)
 #endif
 
 #ifdef stm32f0
 #include "stm32f0xx_ll_bus.h"
 #include "stm32f0xx_ll_usart.h"
+#define UART_PORT USART1
 #endif
 
-
-uint8_t gUart1Rx;
-uint8_t gUart2Rx;
 static uint8_t *uart1_buffer;
 static uint8_t uart1_size;
 static uint8_t *uart2_buffer;
 static uint8_t uart2_size;
-
-
-#ifdef stm32f0
-#define UART_PORT USART1
-#endif
-#ifdef stm32f4
-#define UART_PORT USART2
-#endif
-#ifdef stm32f7
-#define UART_PORT ((USART_TypeDef *) USART3_BASE)
-#endif
 
 //------------------------------------------------------------------------------
 USART_TypeDef *uart_get(uint8_t port)
@@ -65,14 +55,16 @@ USART_TypeDef *uart_get(uint8_t port)
 //------------------------------------------------------------------------------
 void USART1_IRQHandler()
 {
+    uint8_t data;
+    
     if (LL_USART_IsActiveFlag_RXNE(USART1) &&
 	LL_USART_IsEnabledIT_RXNE(USART1))
     {
 	/* RXNE flag will be cleared by reading of RDR register
 	 */
-	gUart1Rx = LL_USART_ReceiveData8(USART1);
-	
-	gEvents |= EV_UART1_RX;
+	data = LL_USART_ReceiveData8(USART1);
+
+	EVENT_SET(EV_UART1_RX, data);
     }
     if (LL_USART_IsActiveFlag_TXE(USART1) &&
 	LL_USART_IsEnabledIT_TXE(USART1))
@@ -83,21 +75,23 @@ void USART1_IRQHandler()
 	    uart1_size--;
 	}
 	else {
-	    gEvents |= EV_UART1_TX;
+	    EVENT_SET(EV_UART1_TX, 0);
 	}
     }
 }
 
 void USART2_IRQHandler()
 {
+    uint8_t data;
+    
     if (LL_USART_IsActiveFlag_RXNE(USART2) &&
 	LL_USART_IsEnabledIT_RXNE(USART2))
     {
 	/* RXNE flag will be cleared by reading of RDR register
 	 */
-	gUart2Rx = LL_USART_ReceiveData8(USART2);
+	data = LL_USART_ReceiveData8(USART2);
 	
-	gEvents |= EV_UART2_RX;
+	EVENT_SET(EV_UART2_RX, data);
     }
     if (LL_USART_IsActiveFlag_TXE(USART2) &&
 	LL_USART_IsEnabledIT_TXE(USART2))
@@ -108,7 +102,7 @@ void USART2_IRQHandler()
 	    uart2_size--;
 	}
 	else {
-	    gEvents |= EV_UART2_TX;
+	    EVENT_SET(EV_UART2_TX, 0);
 	}
     }
 }

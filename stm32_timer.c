@@ -1,5 +1,6 @@
 #include "hw.h"
 #include "hal.h"
+#include "event.h"
 
 #ifdef stm32f4
 #include "stm32f4xx_ll_bus.h"
@@ -30,7 +31,7 @@ void TIM2_IRQHandler(void)
     }
 
     //LL_GPIO_TogglePin(GPIOB, LL_GPIO_PIN_14);
-    gEvents |= EV_TIMER2;
+    EVENT_SET(EV_TIMER2, 0);
 }
 
 //------------------------------------------------------------------------------
