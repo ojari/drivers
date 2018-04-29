@@ -57,6 +57,7 @@ void buffer_str(buffer_t *buf, const char* str)
 
 void buffer_nl(buffer_t *buf)
 {
+    buffer_ch(buf, '\r');
     buffer_ch(buf, '\n');
 }
 

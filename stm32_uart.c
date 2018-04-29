@@ -102,8 +102,19 @@ void USART2_IRQHandler()
 	    uart2_size--;
 	}
 	else {
+	    LL_USART_DisableIT_TXE(USART2);
 	    EVENT_SET(EV_UART2_TX, 0);
 	}
+    }
+    if (LL_USART_IsActiveFlag_PE(USART2))
+	error(ERR_UART_PARITY);
+    if (LL_USART_IsActiveFlag_FE(USART2))
+	error(ERR_UART_FRAMING);
+    if (LL_USART_IsActiveFlag_NE(USART2))
+	error(ERR_UART_NOISE);
+    if (LL_USART_IsActiveFlag_ORE(USART2)) {
+	data = LL_USART_ReceiveData8(USART2); // clear error flag
+	error(ERR_UART_OVERRUN);
     }
 }
 
@@ -175,6 +186,7 @@ void uart_print(uint8_t port, buffer_t *buf)
 	uart1_size   = BUFFER_SIZE(buf);
 
 	LL_USART_TransmitData8(uart, *uart1_buffer);
+	LL_USART_EnableIT_TXE(uart );
 
 	uart1_buffer++;
 	uart1_size--;
@@ -184,9 +196,21 @@ void uart_print(uint8_t port, buffer_t *buf)
 	uart2_size   = BUFFER_SIZE(buf);
 
 	LL_USART_TransmitData8(uart, *uart2_buffer);
+	LL_USART_EnableIT_TXE(USART2);
 
 	uart2_buffer++;
 	uart2_size--;
+    }
+}
+
+void uart_sync(uint8_t port, buffer_t *buf)
+{
+    USART_TypeDef *uart = uart_get(port);
+
+    for (uint8_t i = 0; i < BUFFER_SIZE(buf); i++) {
+	while (!LL_USART_IsActiveFlag_TXE(uart));
+	
+	LL_USART_TransmitData8(uart, BUFFER_DATA(buf)[i]);
     }
 }
 
@@ -209,4 +233,10 @@ void uart_sends(uint8_t port, char *buf)
 	
 	LL_USART_TransmitData8(uart, buf[i]);	
     }
+}
+
+void uart_send_nl(uint8_t port)
+{
+    uart_send(port, '\r');
+    uart_send(port, '\n');
 }
