@@ -46,7 +46,7 @@ USART_TypeDef *uart_get(uint8_t port)
 	break;
 #endif
     default:
-	error(ERR_UART_PORT);
+	_error(ERR_UART_PORT);
 	break;
     }
     return ret;
@@ -106,15 +106,21 @@ void USART2_IRQHandler()
 	    EVENT_SET(EV_UART2_TX, 0);
 	}
     }
-    if (LL_USART_IsActiveFlag_PE(USART2))
-	error(ERR_UART_PARITY);
-    if (LL_USART_IsActiveFlag_FE(USART2))
-	error(ERR_UART_FRAMING);
-    if (LL_USART_IsActiveFlag_NE(USART2))
-	error(ERR_UART_NOISE);
+    if (LL_USART_IsActiveFlag_PE(USART2)) {
+	LL_USART_ClearFlag_PE(USART2);
+	_error(ERR_UART_PARITY);
+    }
+    if (LL_USART_IsActiveFlag_FE(USART2)) {
+	LL_USART_ClearFlag_FE(USART2);
+	_error(ERR_UART_FRAMING);
+    }
+    if (LL_USART_IsActiveFlag_NE(USART2)) {
+	LL_USART_ClearFlag_NE(USART2);
+	_error(ERR_UART_NOISE);
+    }
     if (LL_USART_IsActiveFlag_ORE(USART2)) {
-	data = LL_USART_ReceiveData8(USART2); // clear error flag
-	error(ERR_UART_OVERRUN);
+	LL_USART_ClearFlag_ORE(USART2);
+	_error(ERR_UART_OVERRUN);
     }
 }
 

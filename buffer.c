@@ -43,7 +43,7 @@ void buffer_ch(buffer_t *buf, uint8_t ch)
 	(buf->size)++;
     }
     else {
-	error(ERR_BUFFER_OVERFLOW);
+	_error(ERR_BUFFER_OVERFLOW);
     }
 }
 
