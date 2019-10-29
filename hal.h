@@ -5,8 +5,8 @@
 
 // Constants (wiring compatible see http://wiring.org.co/reference)
 //
-#define _INPUT  0
-#define _OUTPUT 1
+#define INPUT  0
+#define OUTPUT 1
 
 #define TRUE 1
 #define FALSE 0
