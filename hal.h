@@ -24,6 +24,9 @@ extern void pinMode(pin_t pin, uint8_t mode);
 extern void digitalWrite(pin_t pin, uint8_t value);
 extern uint8_t digitalRead(pin_t pin);
 
+extern void delay(uint16_t ms);
+extern void delayMicroseconds(uint16_t us);
+
 // module serial port
 //
 class SerialBase

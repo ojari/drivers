@@ -11,3 +11,11 @@ typedef enum errors {
 } errorcode_t;
 
 extern void _error(errorcode_t code);
+
+
+class PcSPI {
+public:
+    uint8_t transfer(uint8_t data);
+};
+
+extern PcSPI SPI;
